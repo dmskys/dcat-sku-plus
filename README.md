@@ -85,14 +85,14 @@ protected function form()
 				'id'=>1,
 				'attr_name'=>'size',
 				'attr_type'=>'checkbox',//checkbox|radio
-				'attr_value'=>'["S","M","L"]',
+				'attr_value'=>["S","M","L"],
 				'sort'=>1,
 			],
 		    [
 			    'id'=>2,
 			    'attr_name'=>'color',
 			    'attr_type'=>'checkbox',
-			    'attr_value'=>'["S","M","L"]',
+			    'attr_value'=>["S","M","L"],
 			    'sort'=>1,
 		    ]
 	    ])->addColumn($skuParams);
