@@ -1,10 +1,10 @@
 {
-    "name": "abbotton/dcat-sku-plus",
+    "name": "dmskys/dcat-sku-plus",
     "description": "基于Dcat Admin的SKU扩展增强版",
     "alias": "Dcat Admin SKU扩展增强版",
     "type": "library",
     "keywords": ["dcat-admin", "extension"],
-    "homepage": "https://github.com/abbotton/dcat-sku-plus",
+    "homepage": "https://github.com/dmskys/dcat-sku-plus",
     "license": "MIT",
     "authors": [
         {

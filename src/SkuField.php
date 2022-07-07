@@ -3,7 +3,6 @@
 namespace Dcat\Admin\Extension\DcatSkuPlus;
 
 use Dcat\Admin\Admin;
-use Dcat\Admin\Extension\DcatSkuPlus\Models\SkuAttribute;
 use Dcat\Admin\Form\Field;
 
 class SkuField extends Field
@@ -17,7 +16,24 @@ class SkuField extends Field
 
         $uploadUrl = DcatSkuPlusServiceProvider::setting('sku_plus_img_upload_url') ?: '/admin/sku-image-upload';
         $deleteUrl = DcatSkuPlusServiceProvider::setting('sku_plus_img_remove_url') ?: '/admin/sku-image-remove';
-        $skuAttributes = SkuAttribute::orderBy('sort', 'desc')->get();
+        $skuAttributes = [];
+		//数据格式
+//	    $skuAttributes = [
+//			[
+//				'id'=>1,
+//				'attr_name'=>'size',
+//				'attr_type'=>'checkbox',//checkbox|radio
+//				'attr_value'=>'["S","M","L"]',
+//				'sort'=>1,
+//			],
+//		    [
+//			    'id'=>2,
+//			    'attr_name'=>'color',
+//			    'attr_type'=>'checkbox',
+//			    'attr_value'=>'["S","M","L"]',
+//			    'sort'=>1,
+//		    ]
+//	    ];
 
         $this->script = <<< EOF
         window.DemoSku = new JadeKunSKU('{$this->getElementClassSelector()}');
@@ -39,4 +55,16 @@ EOF;
 
         return $this;
     }
+	
+	/**
+	 * 初始化属性列表.
+	 *
+	 * @param  array  $column
+	 * @return $this
+	 */
+	public function initSkuAttributes(array $skuAttributes = []): self
+	{
+		$this->addVariables(['skuAttributes' => $skuAttributes]);
+		return $this;
+	}
 }

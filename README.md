@@ -4,6 +4,7 @@
 >
 > 以及前人的前人的肩膀：https://github.com/jade-kun/sku
 >
+> 以及前人的前人的肩膀 https://github.com/Abbotton/dcat-sku-plus
 > 因改动太大，故没有往前面两位大佬的仓库中PR。
 
 ### **如果感觉好用，还请给个`Star`鼓励一下，谢谢 :beers: 。**
@@ -11,6 +12,9 @@
 该插件是 [Dcat Admin](https://learnku.com/docs/dcat-admin/) 的插件，安装方式遵循Dcat Admin官方文档。
 
 默认规格带有`图片`、`库存`、`价格`三个属性，可自行添加属性，自行处理。
+
+## 改进的地方
+- 删除了数据库表，可使用外部参数参入更加灵活
 
 ## 改进的地方
 
@@ -49,7 +53,7 @@
 #### composer安装
 
 ```shell
-composer require abbotton/dcat-sku-plus
+composer require dmskys/dcat-sku-plus
 ```
 
 #### 应用商店安装
@@ -76,12 +80,42 @@ protected function form()
             // 扩展第二列
         ];
         // 新增时
-        $form->sku('sku', '生成SKU')->addColumn($skuParams);
+        $form->sku('sku', '生成SKU')->initSkuAttributes([
+			[
+				'id'=>1,
+				'attr_name'=>'size',
+				'attr_type'=>'checkbox',//checkbox|radio
+				'attr_value'=>'["S","M","L"]',
+				'sort'=>1,
+			],
+		    [
+			    'id'=>2,
+			    'attr_name'=>'color',
+			    'attr_type'=>'checkbox',
+			    'attr_value'=>'["S","M","L"]',
+			    'sort'=>1,
+		    ]
+	    ])->addColumn($skuParams);
         
         // 编辑时
         $skuData = []; // 数据结构见附录
         $skuString = json_encode($skuData);
-        $form->sku('sku', '生成SKU')->addColumn($skuParams)->value($skuString);
+        $form->sku('sku', '生成SKU')->initSkuAttributes([
+			[
+				'id'=>1,
+				'attr_name'=>'size',
+				'attr_type'=>'checkbox',//checkbox|radio
+				'attr_value'=>'["S","M","L"]',
+				'sort'=>1,
+			],
+		    [
+			    'id'=>2,
+			    'attr_name'=>'color',
+			    'attr_type'=>'checkbox',
+			    'attr_value'=>'["S","M","L"]',
+			    'sort'=>1,
+		    ]
+	    ])->addColumn($skuParams)->value($skuString);
         
         // 获取提交的数据.
         $form->saving(function (Form $form) {
