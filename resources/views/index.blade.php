@@ -25,7 +25,7 @@
                             <select class="form-control _normal_ attribute_selector">
                                 <option value="input">手动输入</option>
                                 @foreach($skuAttributes as $key => &$attribute)
-                                    <option value="{{$attribute->attr_type}}" data-idx="{{$key}}">{{$attribute->attr_name}}</option>
+                                    <option value="{{$attribute['attr_type']}}" data-idx="{{$key}}">{{$attribute['attr_name']}}</option>
                                 @endforeach
                             </select>
                             <input type="text" class="form-control input_attr_name">
