@@ -154,22 +154,21 @@
         trs.each(function () {
             let tr = $(this);
             let attr_val = []; // 属性值
-            let attr_obj_val = []; // 属性值obj
+            let attr_obj_val = {}; // 属性值obj
             let scopeAttrType = tr.find('td:eq(0) select:eq(0)').val();
             let scopeAttrName = '';
             switch (scopeAttrType) {
                 case 'checkbox':
                 case 'radio':
                     scopeAttrName = tr.find('td:eq(0) select:eq(0)').find("option:selected").text();
-                    console.log("scopeAttrName:", scopeAttrName)
                     tr.find('td:eq(1) input[type="' + scopeAttrType + '"]:checked').each(function (i, v) {
                         attr_val.push($(v).val());
                         let pic = $(v).parent().parent().find(".img img").attr("src");
-                        attr_obj_val.push({
+                        attr_obj_val[$(v).val()] = {
                             'name': $(v).val(),
                             'display': $(v).parent().parent().find(".note").val(),
                             'imageUrl': pic == undefined ? "" : pic
-                        });
+                        };
                     });
                     break;
                 default:
