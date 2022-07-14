@@ -12,8 +12,8 @@ class SkuField extends Field
 	
 	public function render()
 	{
-		Admin::js('vendor/dcat-admin-extensions/abbotton/dcat-sku-plus/js/index.js');
-		Admin::css('vendor/dcat-admin-extensions/abbotton/dcat-sku-plus/css/index.css');
+		Admin::js('vendor/dcat-admin-extensions/dmskys/dcat-sku-plus/js/index.js');
+		Admin::css('vendor/dcat-admin-extensions/dmskys/dcat-sku-plus/css/index.css');
 		
 		$uploadUrl = DcatSkuPlusServiceProvider::setting('sku_plus_img_upload_url') ?: '/admin/sku-image-upload';
 		$deleteUrl = DcatSkuPlusServiceProvider::setting('sku_plus_img_remove_url') ?: '/admin/sku-image-remove';
@@ -32,25 +32,12 @@ EOF;
 	}
 	
 	/**
-	 * 添加扩展列.
-	 *
+	 * 初始化
+	 * @param  array  $skuAttributes
 	 * @param  array  $column
 	 * @return $this
 	 */
-	public function addColumn(array $column = []): self
-	{
-		$this->addVariables(['extra_column' => json_encode($column)]);
-		
-		return $this;
-	}
-	
-	/**
-	 * 初始化属性列表.
-	 *
-	 * @param  array  $column
-	 * @return $this
-	 */
-	public function initSkuAttributes(array $skuAttributes = []): self
+	public function init(array $skuAttributes = [],array $column = []): self
 	{
 		//数据格式
 //	    $skuAttributes = [
@@ -71,6 +58,8 @@ EOF;
 //	    ];
 		
 		$this->addVariables(['skuAttributes' => $skuAttributes]);
+		$this->addVariables(['extra_column' => json_encode($column)]);
+		
 		return $this;
 	}
 }

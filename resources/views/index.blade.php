@@ -23,24 +23,14 @@
                     <tr>
                         <td>
                             <select class="form-control _normal_ attribute_selector">
-                                <option value="input">手动输入</option>
+                                <option value="input">请选择</option>
                                 @foreach($skuAttributes as $key => &$attribute)
                                     <option value="{{$attribute['attr_type']}}" data-idx="{{$key}}">{{$attribute['attr_name']}}</option>
                                 @endforeach
                             </select>
-                            <input type="text" class="form-control input_attr_name">
                         </td>
                         <td>
                             <div class="sku_attr_val_wrap">
-                                <div class="sku_attr_val_item">
-                                    <div class="sku_attr_val_input">
-                                        <input type="text" class="form-control">
-                                    </div>
-                                    <span class="btn btn-default Js_remove_attr_val"><i class="feather icon-x"></i></span>
-                                </div>
-                                <div class="sku_attr_val_item Js_add_attr_val" style="padding-left: 10px">
-                                    <span class="btn btn-primary"><i class="feather icon-plus"></i></span>
-                                </div>
                             </div>
                         </td>
                         <td>
@@ -81,4 +71,25 @@
         margin-top: 7px;
     }
 
+    .sku_attr_val_wrap .img{
+        width: 30px;
+        height: 30px;
+        display: flex;
+        border: 1px solid #d9d9d9;
+        margin-left: 5px;
+        position: relative;
+    }
+
+    .sku_attr_val_wrap .img .icon-x {
+        color: {{ Admin::color()->get('danger') }};
+    }
+
+    .sku_attr_val_wrap .img i {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -25%;
+        margin-top: -25%;
+        cursor: pointer;
+    }
 </style>

@@ -9,6 +9,7 @@
         this.currentAttributeValue = [];
         this.currentSkuId = '';
         this.skuAttr = {};
+        this.attrsObj = {};
         this.init();
     }
 
@@ -56,13 +57,17 @@
         _this.wrap.find('.sku_attr_key_val tbody').on('change', 'input', _this.getSkuAttr.bind(_this));
         _this.wrap.find('.sku_edit_wrap tbody').on('keyup', 'input', _this.processSku.bind(_this));
 
-        // SKU图片上传
-        _this.wrap.find('.sku_edit_wrap tbody').on('click', '.Js_sku_upload', function () {
+        // Attr SKU图片上传
+        _this.wrap.find('.sku_attr_key_val td').on('click', '.Js_sku_upload', function () {
+            if (!$(this).parent().find('input[type="checkbox"]').is(':checked')) {
+                Dcat.warning('选中后才能上传图片');
+                return;
+            }
             _this.upload($(this));
         });
 
         // 删除图片
-        _this.wrap.find('.sku_edit_wrap tbody').on('click', '.sku_img .icon-x', function () {
+        _this.wrap.find('.sku_attr_key_val td').on('click', '.img .icon-x', function () {
             let that = $(this);
             Dcat.confirm('确认要删除图片吗？', null, function () {
                 $.ajax({
@@ -76,6 +81,7 @@
                         let method = res.code == 200 ? 'success' : 'error';
                         Dcat[method](res.message);
                         if (res.code == 200) {
+                            that.parent("div").parent("div").find(".Js_sku_upload").show();
                             that.parent('div').remove();
                             _this.processSku();
                         }
@@ -84,14 +90,6 @@
             });
 
             return false;
-        });
-
-        _this.wrap.find('.sku_edit_wrap tbody').on('mouseenter', '.sku_img img', function () {
-            $(this).next('.icon-x').show();
-        });
-
-        _this.wrap.find('.sku_edit_wrap tbody').on('mouseleave', '.sku_img img', function () {
-            $(this).next('.icon-x').hide();
         });
 
         let old_val = _this.wrap.find('.Js_sku_input').val();
@@ -103,7 +101,6 @@
             let attr_names = old_val.attrs;
             let tbody = _this.wrap.find('.sku_attr_key_val tbody');
             let attr_keys = Object.keys(attr_names);
-            let attr_keys_len = attr_keys.length;
 
             attr_keys.forEach(function (attr_key, index) {
                 // 规格名
@@ -151,19 +148,28 @@
     // 获取SKU属性
     SKU.prototype.getSkuAttr = function () {
         let attr = {}; // 所有属性
+        let attrsObj = {}; //所有属性对象信息
         let _this = this;
         let trs = _this.wrap.find('.sku_attr_key_val tbody tr');
         trs.each(function () {
             let tr = $(this);
             let attr_val = []; // 属性值
+            let attr_obj_val = []; // 属性值obj
             let scopeAttrType = tr.find('td:eq(0) select:eq(0)').val();
             let scopeAttrName = '';
             switch (scopeAttrType) {
                 case 'checkbox':
                 case 'radio':
                     scopeAttrName = tr.find('td:eq(0) select:eq(0)').find("option:selected").text();
+                    console.log("scopeAttrName:", scopeAttrName)
                     tr.find('td:eq(1) input[type="' + scopeAttrType + '"]:checked').each(function (i, v) {
                         attr_val.push($(v).val());
+                        let pic = $(v).parent().parent().find(".img img").attr("src");
+                        attr_obj_val.push({
+                            'name': $(v).val(),
+                            'display': $(v).parent().parent().find(".note").val(),
+                            'imageUrl': pic == undefined ? "" : pic
+                        });
                     });
                     break;
                 default:
@@ -178,10 +184,12 @@
             }
             if (attr_val.length) {
                 attr[scopeAttrName] = attr_val;
+                attrsObj[scopeAttrName] = attr_obj_val;
             }
         });
-        if (JSON.stringify(_this.attrs) !== JSON.stringify(attr)) {
+        if (JSON.stringify(_this.attrs) !== JSON.stringify(attr) || JSON.stringify(_this.attrsObj) !== JSON.stringify(attrsObj)) {
             _this.attrs = attr;
+            _this.attrsObj = attrsObj;
             let params = _this.wrap.find('.Js_sku_params_input').val();
             _this.SKUForm(null, JSON.parse(params))
         }
@@ -200,7 +208,6 @@
             attr_names.forEach(function (attr_name) {
                 thead_html += '<th style="width: 80px">' + attr_name + '</th>'
             });
-            thead_html += '<th data-field="pic" style="width: 102px">图片 </th>';
             thead_html += '<th data-field="stock">库存 <input type="text" class="form-control"></th>';
             thead_html += '<th data-field="price">价格 <input type="text" class="form-control"></th>';
 
@@ -232,7 +239,6 @@
                     let attr_name = attr_names[index];
                     tbody_html += '<td data-field="' + attr_name + '" class="attr-name">' + attr_val + '</td>';
                 });
-                tbody_html += '<td data-field="pic"><div class="sku_img"><span class="Js_sku_upload"><i class="feather icon-upload-cloud"></i></span></div></td>';
                 tbody_html += '<td data-field="stock"><input value="" type="text" class="form-control"></td>';
                 tbody_html += '<td data-field="price"><input value="" type="text" class="form-control"></td>';
 
@@ -247,17 +253,9 @@
                 default_sku.forEach(function (item_sku, index) {
                     let tr = _this.wrap.find('.sku_edit_wrap tbody tr').eq(index);
                     Object.keys(item_sku).forEach(function (field) {
-                        if (field == 'pic' && item_sku[field].length > 0) {
-                            let html = '';
-                            item_sku[field].forEach(function (v) {
-                                html += '<div class="img"><img src="' + v.full_url + '"/><i class="feather icon-x" data-path="' + v.short_url + '"></i></div>';
-                            });
-                            tr.find('.Js_sku_upload').before(html);
-                        } else {
-                            let input = tr.find('td[data-field="' + field + '"] input');
-                            if (input.length) {
-                                input.val(item_sku[field]);
-                            }
+                        let input = tr.find('td[data-field="' + field + '"] input');
+                        if (input.length) {
+                            input.val(item_sku[field]);
                         }
                     })
                 });
@@ -273,6 +271,8 @@
         let ths = _this.wrap.find('.sku_edit_wrap thead th')
         let tr = _this.wrap.find('.sku_edit_wrap tbody tr')
         let tds = tr.find('td[data-field]')
+        let ads = _this.wrap.find(".attr-display-name")
+        let notes = _this.wrap.find(".note")
 
         ths.each(function () {
             let th = $(this)
@@ -292,6 +292,23 @@
                 _this.processSku()
             })
         });
+
+        ads.each(function () {
+            let input = $(this)
+            input.change(function () {
+                let field = input.attr('data-field')
+                let value = input.val()
+                _this.wrap.find('.attr-display-name[data-field="' + field + '"]').val(value);
+            })
+            _this.processSku()
+        });
+
+        notes.each(function () {
+            let input = $(this)
+            input.change(function () {
+                _this.getSkuAttr()
+            })
+        });
     };
 
     // 处理最终SKU数据，并写入input
@@ -301,28 +318,15 @@
         sku_json.type = _this.wrap.find('.sku_attr_select .btn.btn-success').attr('data-type');
         // 多规格
         sku_json.attrs = _this.attrs;
+        sku_json.attrsObj = _this.attrsObj;
         let sku = [];
         _this.wrap.find('.sku_edit_wrap tbody tr').each(function () {
             let tr = $(this);
             let item_sku = {};
             tr.find('td[data-field]').each(function () {
-                let pic = [];
                 let td = $(this);
                 let field = td.attr('data-field');
-                if (field == 'pic') {
-                    let skuImg = td.find('.img');
-                    if (skuImg.length > 0) {
-                        skuImg.each(function (i, v) {
-                            pic.push({
-                                short_url: $(v).find('.icon-x').data('path'),
-                                full_url: $(v).find('img').attr('src')
-                            });
-                        });
-                        item_sku['pic'] = pic;
-                    }
-                } else {
-                    item_sku[field] = td.find('input').val() || td.text();
-                }
+                item_sku[field] = td.find('input').val() || td.text();
             });
             sku.push(item_sku);
         });
@@ -358,6 +362,8 @@
                 success: function (res) {
                     obj.before('<div class="img"><img src="' + res.full_url + '"/><i class="feather icon-x" data-path="' + res.short_url + '"></i></div>');
                     _this.processSku();
+                    _this.getSkuAttr();
+                    obj.hide();
                 }
             })
         }
@@ -377,7 +383,7 @@
                 if (attribute.attr_value.length > 0) {
                     html += '<div class="d-flex flex-wrap">';
                     attribute.attr_value.forEach(function (v) {
-                        html += '<div class="vs-checkbox-con vs-checkbox-primary" style="margin-right: 16px"><input value="' + v + '" class="Dcat_Admin_Widgets_Checkbox" type="checkbox" name="' + attribute.attr_name + '"';
+                        html += '<div class="checkbox-wrp"><div class="vs-checkbox-con vs-checkbox-primary" style="margin-right: 5px"><input value="' + v + '" class="Dcat_Admin_Widgets_Checkbox" type="checkbox" name="' + attribute.attr_name + '"';
                         if (_this.currentAttributeValue.indexOf(v) >= 0) {
                             html += ' checked="checked"';
                         }
@@ -387,7 +393,10 @@
                             '</span>' +
                             '</span>' +
                             '<span>' + v + '</span>' +
-                            '</div>'
+                            '</div>' +
+                            '<input type="text" placeholder="显示名称" value="' + v + '" class="form-control note" style="width: 80px;height: 30px;min-height: 30px;">' +
+                            '<span class="Js_sku_upload"><i class="feather icon-upload-cloud"></i></span>' +
+                            '</div>';
                     });
                     html += '</div>';
                 }
@@ -412,15 +421,7 @@
                 }
                 break;
             default:
-                html = '<div class="sku_attr_val_item">' +
-                    '<div class="sku_attr_val_input">' +
-                    '<input type="text" class="form-control">' +
-                    '</div>' +
-                    '<span class="btn btn-default Js_remove_attr_val"><i class="feather icon-x"></i></span>' +
-                    '</div>' +
-                    '<div class="sku_attr_val_item Js_add_attr_val" style="padding-left:10px">' +
-                    '<span class="btn btn-primary"><i class="feather icon-plus"></i></span>' +
-                    '</div>';
+                html = '';
                 break;
         }
 
@@ -434,7 +435,7 @@
         if (innerHtml.length > 0 && _this.currentSkuId == '') {
             html += ' selected="selected"';
         }
-        html += '><option value="input">手动输入</option>';
+        html += '><option value="input">请选择</option>';
         skuAttributesArray.forEach(function (v, i) {
             html += ' <option value="' + v.attr_type + '" data-idx="' + i + '"';
             if (innerHtml.length > 0 && v.id == _this.currentSkuId) {
@@ -442,7 +443,7 @@
             }
             html += '>' + v.attr_name + '</option>'
         });
-        html += '</select><input type="text" class="form-control input_attr_name"></td><td><div class="sku_attr_val_wrap">' +
+        html += '</select></td><td><div class="sku_attr_val_wrap">' +
             (innerHtml.length > 0 ? innerHtml : this.getAttributeHtml('input', this.skuAttr)) +
             '</div></td><td><span class="btn btn-default Js_remove_attr_name">移除</span></td></tr>';
 
