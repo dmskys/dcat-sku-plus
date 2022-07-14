@@ -2,6 +2,7 @@
     function SKU(wrap) {
         this.wrap = $(wrap);
         this.attrs = {};
+        this.attrsObj = {};
         this.skuAttributes = JSON.parse($('.sku_attributes').val());
         this.uploadUrl = $('.upload_url').val();
         this.deleteUrl = $('.delete_url').val();
@@ -9,7 +10,6 @@
         this.currentAttributeValue = [];
         this.currentSkuId = '';
         this.skuAttr = {};
-        this.attrsObj = {};
         this.init();
     }
 
@@ -139,6 +139,7 @@
 
             // 生成具体的SKU配置表单
             _this.attrs = old_val.attrs;
+            _this.attrsObj = old_val.attrsObj;
             _this.SKUForm(old_val.sku, JSON.parse(params));
         } else {
             _this.processSku();
@@ -393,7 +394,7 @@
                             '</span>' +
                             '<span>' + v + '</span>' +
                             '</div>' +
-                            '<input type="text" placeholder="显示名称" value="' + v + '" class="form-control note" style="width: 80px;height: 30px;min-height: 30px;">' +
+                            '<input type="text" placeholder="显示名称" value="' + v + '" class="form-control note" style="width: 70px;height: 30px;min-height: 30px;">' +
                             '<span class="Js_sku_upload"><i class="feather icon-upload-cloud"></i></span>' +
                             '</div>';
                     });
