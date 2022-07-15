@@ -16,10 +16,7 @@ class DcatSkuPlusServiceProvider extends ServiceProvider
     ];
 
     protected $menu = [
-        [
-            'title' => '属性管理',
-            'uri' => 'sku-attribute'
-        ]
+    
     ];
 
     public function init()
